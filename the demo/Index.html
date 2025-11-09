@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Xanenge — Credit Viewer</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    /* Minimal, elegant UI — all internal */
+    :root{
+      --bg-1: #071028;
+      --bg-2: #071834;
+      --card: #0f1724;
+      --muted: #98a6bd;
+      --accent: #5EEAD4;
+      --glass: rgba(255,255,255,0.03);
+      --radius: 12px;
+      --maxw: 880px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg,var(--bg-1),var(--bg-2));
+      color: #e8f0ff;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:28px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:center;
+      min-height:100vh;
+    }
+
+    .wrap{width:100%;max-width:var(--maxw);}
+
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{
+      width:54px;height:54px;border-radius:12px;background:linear-gradient(135deg,#06b6d4,#05847a);
+      display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(2,6,23,0.6)
+    }
+    .logo svg{width:28px;height:28px}
+    h1{font-size:18px;margin:0}
+    .lead{margin:0;color:var(--muted);font-size:13px}
+
+    .grid{display:grid;grid-template-columns:1fr 380px;gap:18px}
+    @media (max-width:880px){ .grid{grid-template-columns:1fr; } }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:var(--radius);
+      padding:18px;
+      box-shadow: 0 8px 28px rgba(2,6,23,0.6);
+      border:1px solid rgba(255,255,255,0.03);
+    }
+
+    label{display:block;color:var(--muted);font-size:13px;margin-bottom:6px}
+    input[type=text], input[type=password], select{
+      width:100%; padding:10px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.04);
+      background:transparent;color:inherit;font-size:14px;
+    }
+
+    .row{display:flex;gap:10px}
+    .col{flex:1}
+    button.primary{
+      background:linear-gradient(90deg,var(--accent),#34d399);
+      color:#032023;border:none;padding:10px 12px;border-radius:10px;font-weight:700;cursor:pointer;
+      box-shadow: 0 8px 20px rgba(8,145,106,0.08);
+    }
+    .ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:9px 12px;border-radius:10px;color:var(--muted);cursor:pointer}
+
+    .muted{color:var(--muted);font-size:13px}
+    .error{color:#ff9b9b;margin-top:8px;font-size:13px;display:none}
+
+    /* result area */
+    .profile-head{display:flex;align-items:center;gap:12px}
+    .avatar{
+      width:64px;height:64px;border-radius:12px;background:linear-gradient(135deg,#183a5f,#0ea5a6);
+      display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#e6f8f3;
+    }
+    .kvs{margin-top:12px;border-radius:10px;overflow:hidden;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));}
+    .kv{display:flex;justify-content:space-between;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.02)}
+    .kv:last-child{border-bottom:0}
+    .label{color:var(--muted);font-size:13px}
+    .value{font-weight:700}
+
+    footer{margin-top:18px;color:var(--muted);font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 12c0 5 4 9 9 9s9-4 9-9" stroke="#042022" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="8" r="3" fill="#042022"/></svg>
+        </div>
+        <div>
+          <h1>Xanenge Consulting</h1>
+          <p class="lead">Credit profile viewer</p>
+        </div>
+      </div>
+      <div class="muted">Secure</div>
+    </header>
+
+    <main class="grid">
+      <!-- Left: form -->
+      <section class="card" aria-labelledby="lookupTitle">
+        <h2 id="lookupTitle" style="margin:0 0 8px 0">Lookup</h2>
+
+        <form id="lookupForm" onsubmit="return handleSubmit(event)" autocomplete="off" novalidate>
+          <label for="idnumber">ID number (13 digits)</label>
+          <input id="idnumber" name="idnumber" type="text" inputmode="numeric" maxlength="13" placeholder="e.g. 8001015009087" />
+
+          <div style="display:flex;gap:10px;margin-top:10px">
+            <div style="flex:1">
+              <label for="password">Password</label>
+              <input id="password" name="password" type="password" placeholder="Enter password" />
+            </div>
+            <div style="width:150px">
+              <label for="profile">Profile</label>
+              <select id="profile" aria-label="Select profile">
+                <option value="jane">Jane Doe</option>
+                <option value="john">John Doe</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;margin-top:14px">
+            <button type="submit" class="primary">View record</button>
+            <button type="button" class="ghost" onclick="resetForm()">Reset</button>
+          </div>
+
+          <div id="error" class="error" role="alert" aria-live="assertive"></div>
+        </form>
+      </section>
+
+      <!-- Right: result -->
+      <aside class="card" id="resultCard" aria-live="polite">
+        <div id="emptyState">
+          <div class="muted">No record selected. Enter a valid ID and click "View record".</div>
+        </div>
+      </aside>
+    </main>
+
+    <footer>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+        <div class="muted">Xanenge Consulting</div>
+        <div class="muted">Example last payment: 25/10/2025</div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Minimal, focused JavaScript
+    (function(){
+      const profiles = {
+        jane: {
+          name: "Jane Doe",
+          bank: "BankA",
+          opening_balance: "R20000",
+          current_balance: "R15000",
+          overdue_amount: "R800",
+          installment: "R750",
+          last_payment_date: "25/10/2025",
+          advice: "Recommend contacting Xanenge Consulting for a tailored repayment plan. Consider consolidating debts and setting up an affordable installment plan."
+        },
+        john: {
+          name: "John Doe",
+          bank: "BankA",
+          opening_balance: "R18000",
+          current_balance: "R12000",
+          overdue_amount: "R0",
+          installment: "R600",
+          last_payment_date: "10/09/2025",
+          advice: "Good standing. Recommend continuing timely payments and monitoring credit profile monthly."
+        }
+      };
+
+      const idEl = document.getElementById('idnumber');
+      const pwdEl = document.getElementById('password');
+      const profileEl = document.getElementById('profile');
+      const errorEl = document.getElementById('error');
+      const resultCard = document.getElementById('resultCard');
+
+      function isNumeric(s){ return /^[0-9]+$/.test(s); }
+      function validateID(id){ return typeof id === 'string' && id.length === 13 && isNumeric(id); }
+
+      window.handleSubmit = function(e){
+        e.preventDefault();
+        errorEl.style.display = 'none';
+        errorEl.textContent = '';
+
+        const id = (idEl.value || '').trim();
+        const pwd = (pwdEl.value || '');
+        const profileKey = profileEl.value;
+
+        if (!validateID(id)){
+          errorEl.style.display = 'block';
+          errorEl.textContent = 'ID must be exactly 13 numeric digits.';
+          return false;
+        }
+        if (!pwd){
+          errorEl.style.display = 'block';
+          errorEl.textContent = 'Password cannot be empty.';
+          return false;
+        }
+
+        const profile = profiles[profileKey];
+        if (!profile){
+          errorEl.style.display = 'block';
+          errorEl.textContent = 'Profile not found.';
+          return false;
+        }
+
+        renderProfile(profile, id);
+        return false;
+      };
+
+      window.resetForm = function(){
+        document.getElementById('lookupForm').reset();
+        resultCard.innerHTML = '<div id="emptyState"><div class="muted">No record selected. Enter a valid ID and click "View record".</div></div>';
+        errorEl.style.display = 'none';
+        errorEl.textContent = '';
+      };
+
+      function renderProfile(p, id){
+        resultCard.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+            <div style="flex:1">
+              <div class="profile-head">
+                <div class="avatar" aria-hidden="true">${p.name.split(' ').map(n=>n[0]).slice(0,2).join('')}</div>
+                <div>
+                  <div style="font-weight:700">${p.name}</div>
+                  <div class="muted" style="margin-top:6px">${p.bank}</div>
+                </div>
+              </div>
+
+              <div class="kvs" style="margin-top:12px">
+                <div class="kv"><div class="label">Opening balance</div><div class="value">${p.opening_balance}</div></div>
+                <div class="kv"><div class="label">Current balance</div><div class="value">${p.current_balance}</div></div>
+                <div class="kv"><div class="label">Overdue amount</div><div class="value">${p.overdue_amount}</div></div>
+                <div class="kv"><div class="label">Installment</div><div class="value">${p.installment}</div></div>
+                <div class="kv"><div class="label">Last payment date</div><div class="value">${p.last_payment_date}</div></div>
+              </div>
+
+              <div style="margin-top:12px">
+                <div style="font-weight:700">Consulting advice</div>
+                <div class="muted" style="margin-top:6px">${p.advice}</div>
+              </div>
+            </div>
+
+            <div style="width:140px;display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+              <div class="muted">Reference ID</div>
+              <div style="font-weight:700">${id}</div>
+              <div class="muted" style="margin-top:6px">${p.overdue_amount === 'R0' ? 'Status: Good' : 'Status: Attention'}</div>
+            </div>
+          </div>
+        `;
+      }
+
+    })();
+  </script>
+</body>
+</html>
